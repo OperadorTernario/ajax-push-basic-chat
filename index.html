@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chat</title>
+	<meta charset="utf8">
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="AjaxPush.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		var comet = new AjaxPush('listener.php', 'sender.php');
+
+		// create anonymous users!
+		var user = 'anonymous';
+		var color = "rgb(" + (Math.random()*255).toFixed(0) + ", " + (Math.random()*255).toFixed(0) + ", " + (Math.random()*255).toFixed(0) + ")";
+		var bg = "rgb(" + (Math.random()*255).toFixed(0) + ", " + (Math.random()*255).toFixed(0) + ", " + (Math.random()*255).toFixed(0) + ")";
+
+		// listener
+		comet.connect({}, function(data){
+			if (typeof data != "object")
+				data = $.parseJSON(data);
+
+			if (data.message.trim() !== '')
+				$("#history").append(data.message + "<br />");
+		});
+
+		// sender
+		var send = function()
+		{
+			comet.doRequest({
+				message: window.btoa(unescape(encodeURIComponent(
+					"<strong style='color: " + color + "; background: " + bg + "'>" + user + "</strong>: " + $("#message").val()
+				)))
+			}, function(){
+				$("#message").val('');
+			})
+		}
+	</script>
+
+	<input type="text" id="message" placeholder="message here" autofocus="autofocus">
+	<button onclick="send()">Send</button><br><br>
+	<div id="history"></div>
+</body>
+</html>
